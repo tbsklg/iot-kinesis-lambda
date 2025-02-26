@@ -5,6 +5,27 @@ When a message is published to the IoT topic, the message will be delivered to A
 ![AWS Infrastructure diagram](infrastructure/docs/arch.svg)
 
 ## Requirements
+- AWS Account
+- AWS CLI
+- Terraform
+- Rust
 
 ## Deployment
 
+```
+terraform init
+```
+
+```
+terraform plan
+```
+
+```
+terraform apply
+```
+
+## Cleanup
+
+```
+terraform destroy
+```
