@@ -71,7 +71,7 @@ resource "aws_lambda_function" "consumer" {
 
   architectures = ["x86_64"]
 
-  memory_size = 1024
+  memory_size = 128
 }
 
 resource "aws_lambda_event_source_mapping" "kinesis_lambda_event_mapping" {

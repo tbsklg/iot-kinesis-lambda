@@ -1,19 +1,53 @@
 use aws_lambda_events::event::kinesis::KinesisEvent;
 use lambda_runtime::{run, service_fn, tracing, Error, LambdaEvent};
+use serde::Serialize;
 
-async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<(), Error> {
-    let messages = event
+async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<BatchItemResponse, Error> {
+    tracing::info!("Processiong {} records", event.payload.records.len());
+
+    let processing_results = event
         .payload
         .records
         .iter()
-        .map(|r| std::str::from_utf8(&r.kinesis.data).unwrap_or(""))
+        .map(|record| {
+            let sequence_number = record.kinesis.sequence_number.clone();
+            let result = std::str::from_utf8(&record.kinesis.data);
+
+            (sequence_number, result)
+        })
         .collect::<Vec<_>>();
 
-    for message in messages {
-        tracing::info!("Message: {}", message);
-    }
+    let batch_item_failures = processing_results
+        .into_iter()
+        .filter_map(|(sequence_number, result)| match result {
+            Ok(data) => {
+                tracing::info!(data, "Successfully processed record");
 
-    Ok(())
+                None
+            }
+            Err(error) => {
+                tracing::warn!(error = %error, "Failed to process record");
+
+                Some(BatchItem {
+                    item_identifier: sequence_number.unwrap(),
+                })
+            }
+        })
+        .collect();
+
+    Ok(BatchItemResponse {
+        batch_item_failures,
+    })
+}
+
+#[derive(Serialize, Debug, Eq, PartialEq)]
+struct BatchItemResponse {
+    batch_item_failures: Vec<BatchItem>,
+}
+
+#[derive(Serialize, Debug, Eq, PartialEq)]
+struct BatchItem {
+    item_identifier: String,
 }
 
 #[tokio::main]
