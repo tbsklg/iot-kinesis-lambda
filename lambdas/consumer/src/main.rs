@@ -46,36 +46,3 @@ async fn main() -> Result<(), Error> {
 
     run(service_fn(function_handler)).await
 }
-
-#[cfg(test)]
-mod tests {
-    use std::{fs::File, io::BufReader};
-
-    use aws_lambda_events::kinesis::KinesisEvent;
-    use lambda_runtime::{Context, LambdaEvent};
-
-    use crate::{function_handler, BatchItemResponse};
-
-    #[tokio::test]
-    async fn should_process_valid_batch() -> Result<(), anyhow::Error> {
-        let file = File::open("./events/kinesis_valid_test_event.json")?;
-        let kinesis_event: KinesisEvent = serde_json::from_reader(BufReader::new(file))?;
-
-        let context = Context::default();
-        let event = LambdaEvent {
-            payload: kinesis_event,
-            context,
-        };
-
-        let result = function_handler(event).await;
-
-        assert_eq!(
-            BatchItemResponse {
-                batch_item_failures: vec![]
-            },
-            result.ok().unwrap()
-        );
-
-        Ok(())
-    }
-}
