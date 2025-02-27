@@ -34,7 +34,7 @@ terraform apply
 ```
 
 ## Test
-Run the included simulation script to publish 10 test events to the IoT topic:
+Run the provided simulation script to publish 100 test events to the IoT topic:
 ```
 ./simulate.sh
 ```

@@ -3,6 +3,8 @@ use lambda_runtime::{run, service_fn, tracing, Error, LambdaEvent};
 use serde::Serialize;
 
 async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<BatchItemResponse, Error> {
+    tracing::info!("Processiong {} records", event.payload.records.len());
+
     let processing_results = event
         .payload
         .records
