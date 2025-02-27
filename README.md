@@ -1,4 +1,4 @@
-# AWS IoT Rule to AWS Kinesis Data Streams to AWS Lambda in Rust
+# AWS IoT to AWS Kinesis Data Streams to AWS Lambda in Rust
 This project demonstrates a serverless event processing pipeline that:
 1. Captures device data from IoT topics
 2. Streams the data through Kinesis Data Streams
