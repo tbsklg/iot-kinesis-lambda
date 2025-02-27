@@ -18,10 +18,18 @@ async fn function_handler(event: LambdaEvent<KinesisEvent>) -> Result<BatchItemR
     let batch_item_failures = processing_results
         .into_iter()
         .filter_map(|(sequence_number, result)| match result {
-            Ok(_) => None,
-            Err(_) => Some(BatchItem {
-                item_identifier: sequence_number.unwrap(),
-            }),
+            Ok(data) => {
+                tracing::info!(data, "Successfully processed record");
+
+                None
+            }
+            Err(error) => {
+                tracing::warn!(error = %error, "Failed to process record");
+
+                Some(BatchItem {
+                    item_identifier: sequence_number.unwrap(),
+                })
+            }
         })
         .collect();
 
